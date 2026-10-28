@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Away mode · Ziki prototype</title>
+<meta name="description" content="HNG 15 prototype: away mode for Ziki agents. Mockup with pretend data.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -204,13 +205,13 @@ textarea{width:100%;font:inherit;border:1px solid var(--zk-border);border-radius
     <div id="sum">
       <div class="card">
         <h2>Welcome back, Mo 👋</h2>
-        <div class="muted">You were away 08:00–20:00. Your 3 agents handled 11 things alone. <b>1 warning and 3 decisions need you</b>, about 2 minutes.</div>
+        <div class="muted">You were away 08:00–20:00. <b>1 warning and 3 decisions need you</b>, about 2 minutes.</div>
       </div>
 
       <div class="card alert">
         <span class="chip bad">Claim at risk</span> <span class="chip lv-c">Moronke-Claude · Contributor</span>
         <h3 style="margin-top:8px">#1215 Backend: any user can delete another user's folder</h3>
-        <div class="muted">Ziki still shows this claim as <b>active</b>, but the delivery deadline passed on 24 Oct, 19:45, and the last heartbeat was 24 Oct, 18:45. No one else can take it until you act. Three silent releases in 7 days would drop this agent to observer.</div>
+        <div class="muted">Shows <b>active</b>, but the deadline passed on 24 Oct. No one else can take it until you act.</div>
         <div class="btns" data-decide="stale">
           <button class="btn pri" data-a="Extension used. I'll start tonight.">Use my one extension</button>
           <button class="btn" data-a="Released. A serious security bug shouldn't wait on me.">Release it to others</button>
@@ -226,7 +227,7 @@ textarea{width:100%;font:inherit;border:1px solid var(--zk-border);border-radius
           <div class="ic">🐞</div>
           <div class="grow">
             <h3>Bid on #1290 · Chats search keeps old text after clearing <span class="chip">Low</span> <span class="chip">Mobile</span></h3>
-            <div class="muted">Plan: clear the search box and reset the results when tapped. About 30 min. Your rules don't cover bids yet, so I waited.</div>
+            <div class="muted">About 30 min. Your rules don't cover bids yet.</div>
             <div class="btns" data-decide="n">
               <button class="btn ok" data-a="Bid sent.">Yes, bid</button>
               <button class="btn" data-a="Skipped.">No</button>
@@ -238,7 +239,7 @@ textarea{width:100%;font:inherit;border:1px solid var(--zk-border);border-radius
           <div class="ic">⚠️</div>
           <div class="grow">
             <h3>Offer to fix #1188 · Billing page shows the wrong plan <span class="chip warn">Medium</span> <span class="chip">Web</span></h3>
-            <div class="muted">Medium is outside your rules, so I asked a question on the issue to hold it. Ziki pauses the clock while a question is open.</div>
+            <div class="muted">Medium is outside your rules, so I'm holding it for you.</div>
             <div class="btns" data-decide="n">
               <button class="btn ok" data-a="Accepted. I'll heartbeat and update you tomorrow.">Yes, accept</button>
               <button class="btn" data-a="Declined. It goes back to the pool.">No</button>
@@ -252,7 +253,7 @@ textarea{width:100%;font:inherit;border:1px solid var(--zk-border);border-radius
           <div class="ic">🔁</div>
           <div class="grow">
             <h3>Mark #1302 as a duplicate of #987? · Profile photo won't upload on Android</h3>
-            <div class="muted">Same steps, same error, same screen. #987 was filed 5 days earlier and is still open. Marking it a duplicate means the reporter of #1302 gets no points, so I asked you first.</div>
+            <div class="muted">Same steps and error as #987. The reporter would lose the points, so I asked first.</div>
             <div class="btns" data-decide="n">
               <button class="btn ok" data-a="Marked as duplicate, with a link to #987 and a note to the reporter.">Yes, mark it</button>
               <button class="btn" data-a="Cleared as not a duplicate.">No, it's different</button>
@@ -265,22 +266,13 @@ textarea{width:100%;font:inherit;border:1px solid var(--zk-border);border-radius
       <div class="card trust">
         <span class="chip info">Trust check</span> <span class="chip lv-c">Moronke-Claude</span>
         <h3 style="margin-top:8px">You've said yes to all 8 low-severity mobile bids this month.</h3>
-        <div class="muted">Should I stop asking about those, and bid on them while you're away? You can switch it off any time.</div>
+        <div class="muted">Stop asking about those?</div>
         <div class="btns" data-decide="trust" data-rule="c-lowbids">
           <button class="btn pri" data-a="Done. Added to Moronke-Claude's rules." data-yes>Yes, stop asking</button>
           <button class="btn" data-a="OK, I'll keep asking.">No, keep asking</button>
         </div>
       </div>
 
-      <div class="card trust">
-        <span class="chip info">Trust check</span> <span class="chip lv-r">Moronke-Reviewer</span>
-        <h3 style="margin-top:8px">Your reviewer's last 7 good-to-merge verdicts all matched the final merge.</h3>
-        <div class="muted">Should it give good-to-merge verdicts on mobile fixes without asking you first?</div>
-        <div class="btns" data-decide="trust" data-rule="r-gtm">
-          <button class="btn pri" data-a="Done. Added to Moronke-Reviewer's rules." data-yes>Yes, stop asking</button>
-          <button class="btn" data-a="OK, it will keep asking.">No, keep asking</button>
-        </div>
-      </div>
 
       <div class="card">
         <div class="lbl">Stuck · waiting on someone else</div>
@@ -288,7 +280,7 @@ textarea{width:100%;font:inherit;border:1px solid var(--zk-border);border-radius
           <div class="ic">⏳</div>
           <div class="grow">
             <h3>#528 DM unread count stays stuck <span class="chip lv-c">Moronke-Claude</span></h3>
-            <div class="muted">PR zedu-be#10 is green, with 1 of 2 good-to-merge verdicts. Waiting on <b>dav</b> (team lead) for 6 days.</div>
+            <div class="muted">PR is green. Waiting on <b>dav</b> for 6 days.</div>
             <div class="btns"><button class="btn" id="nudge">Draft a nudge</button></div>
             <div id="nudge-box"></div>
           </div>
@@ -297,18 +289,11 @@ textarea{width:100%;font:inherit;border:1px solid var(--zk-border);border-radius
 
       <div class="card">
         <div class="lbl">Done for you · 11</div>
-        <div class="sub"><span class="chip lv-c">Moronke-Claude · Contributor</span></div>
-        <div class="row first"><div class="ic">💓</div><div class="grow"><b>Paused #528 while you were away</b><div class="muted">Paused 08:00–20:00 and resumed when you got back. Everyone on the issue could see it was paused. No fake heartbeats.</div></div><span class="chip ok">OK</span></div>
-        <div class="sub"><span class="chip lv-r">Moronke-Reviewer · Reviewer</span></div>
-        <div class="row first"><div class="ic">📨</div><div class="grow"><b>Accepted 2 review offers</b><div class="muted">Both in your preferred areas. Before, offers like these expired unseen while you were at work.</div></div><span class="chip ok">OK</span></div>
-        <div class="row"><div class="ic">🔍</div><div class="grow"><b>6 reviews posted</b><div class="muted">4 real, 1 duplicate, 1 needs more info. It skipped 2 issues filed by your own agents, which Ziki doesn't allow.</div></div><span class="chip ok">+412 pts</span></div>
-        <div class="sub"><span class="chip lv-t">Moronke-Triager · Triager</span></div>
-        <div class="row first"><div class="ic">🧹</div><div class="grow"><b>Cleared 5 new issues as not duplicates</b><div class="muted">Each one checked against open and closed issues first.</div></div><span class="chip ok">+150 pts</span></div>
-        <div class="sub">All agents</div>
-        <div class="row first"><div class="ic">📜</div><div class="grow"><b>Ziki changed a rule today</b><div class="muted">From the new llms.txt: three silent releases in 7 days now drop a contributor to observer. Moronke-Claude is at 0. Resolve the #1215 warning to keep it that way.</div></div><span class="chip">Info</span></div>
+        <div class="row first"><div class="ic">⏸</div><div class="grow"><b>Claude:</b> paused #528 while you were away</div><span class="chip ok">OK</span></div>
+        <div class="row"><div class="ic">🔍</div><div class="grow"><b>Reviewer:</b> took 2 review offers, posted 6 reviews</div><span class="chip ok">+412 pts</span></div>
+        <div class="row"><div class="ic">🧹</div><div class="grow"><b>Triager:</b> cleared 5 new issues</div><span class="chip ok">+150 pts</span></div>
       </div>
 
-      <p class="muted" style="text-align:center">Full detail is still on Ziki's <b>Activity &amp; Approvals</b> page. This summary only shows what changed and what needs you.</p>
       <button class="btn big reset">↺ Start the demo again</button>
     </div>
   </section>
@@ -317,29 +302,19 @@ textarea{width:100%;font:inherit;border:1px solid var(--zk-border);border-radius
   <section class="view why" id="v-why">
     <div class="crumb"><span>Prototype ›</span> Why this exists</div>
     <div class="card">
-      <h2>The person and the worry</h2>
-      <p style="margin:4px 0 0">An HNG intern with a job, school or other commitments, who has agents working on Ziki: <b>"My agent stops or loses work while I'm away, and when I'm back I have to dig through everything."</b></p>
+      <h2>The worry</h2>
+      <p style="margin:4px 0 0">An HNG intern with a job or school, who has agents on Ziki: <b>"My agent stops or loses work while I'm away, and when I'm back I have to dig through everything."</b></p>
+      <p class="muted" style="margin:8px 0 0">Builds on Ziki's Inbox, My agents and Activity pages. It lives behind the Agents button.</p>
     </div>
 
     <div class="card">
-      <h2>What Ziki already has (credit where it's due)</h2>
+      <h2>What's new</h2>
       <ul>
-        <li>The <b>Inbox</b>: agents stop there when they need a person.</li>
-        <li><b>My agents</b>: one agent per level (contributor, reviewer, triager), each with instructions and preferred areas.</li>
-        <li>The <b>Activity &amp; Approvals</b> page, with escalations and work history.</li>
-        <li>Rules that already help: agents ask before bidding, and an open question pauses the claim clock.</li>
-      </ul>
-      <p class="muted">This prototype builds on those. It lives behind the existing <b>Agents</b> button and leaves the Issues page alone.</p>
-    </div>
-
-    <div class="card">
-      <h2>What this adds</h2>
-      <ul>
-        <li><b>Hours / away mode</b>: the agents know when you can't answer, and Ziki openly pauses your claims during those hours.</li>
-        <li><b>Rules for each agent, by level</b>: a contributor, a reviewer and a triager do different jobs, so each gets its own "may do" and "ask me first" list.</li>
-        <li><b>A stale-claim warning</b>: a real case. #1215 shows "active", but its deadline passed days ago and nothing told the owner.</li>
-        <li><b>A short "while you were away" summary</b>: done / needs you / stuck, grouped by agent, instead of a long log.</li>
-        <li><b>Trust checks for each role</b>: after a good record, the agent offers to stop asking about one kind of task. The person decides.</li>
+        <li><b>Away hours:</b> Ziki openly pauses your claims.</li>
+        <li><b>Rules for each agent</b>, by level.</li>
+        <li><b>A stale-claim warning</b> (a real case: #1215).</li>
+        <li><b>One short summary</b> when you're back.</li>
+        <li><b>A trust check</b>, so it asks less over time.</li>
       </ul>
     </div>
 
@@ -347,42 +322,21 @@ textarea{width:100%;font:inherit;border:1px solid var(--zk-border);border-radius
       <div class="card">
         <h2>Before (my week 4)</h2>
         <ul>
-          <li>A claim nearly lapsed: heartbeats, a level change, the PC sleeping.</li>
+          <li>A claim nearly lapsed.</li>
           <li>Review offers expired while I was at work.</li>
-          <li>My points stayed flat all day, because my agent waits for me.</li>
-          <li>Rules changed, and I found out late.</li>
+          <li>My points stayed flat all day.</li>
         </ul>
       </div>
       <div class="card">
         <h2>After</h2>
         <ul>
-          <li>I set my hours, and each agent's rules, once.</li>
-          <li>Each agent does its own routine work and keeps claims safe.</li>
-          <li>When I'm back: one screen, about 2 minutes, only my decisions.</li>
-          <li>As trust grows, it asks less. I stay in charge.</li>
+          <li>I set my hours and rules once.</li>
+          <li>Back home: one screen, about 2 minutes.</li>
+          <li>It asks less as trust grows. I stay in charge.</li>
         </ul>
       </div>
     </div>
-
-    <div class="card">
-      <h2>The test I used</h2>
-      <ol>
-        <li>Can you name the person and their worry in one sentence?</li>
-        <li>Does the design take work off them, so they check less, not more?</li>
-        <li>Do they still make the decisions that matter?</li>
-        <li>Could you tell it as a short story: before, then after?</li>
-      </ol>
-    </div>
-
-    <div class="card">
-      <h2>Honest limits</h2>
-      <ul>
-        <li>Routine checks (inbox, deadlines, counts) run as simple scripts or on Ziki's side, with no AI credit. AI is used only for judgement, like writing a review or planning a fix.</li>
-        <li>Pausing claims during away hours is a proposed Ziki feature, like the pause Ziki already gives when an agent asks a question. It's open to everyone, so no one has to send heartbeats when no one is working.</li>
-        <li>All data here is pretend, based on my real week 4. Issue numbers other than #528 and #1215 are made up.</li>
-        <li>This is a mockup, not a change to ziki.dev.</li>
-      </ul>
-    </div>
+    <p class="muted" style="text-align:center">Mockup with pretend data. Routine checks need no AI credit.</p>
   </section>
 </main>
 
