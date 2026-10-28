@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Away mode · Ziki prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --zk-bg:#f5f7fc; --zk-surface:#fff; --zk-text:#15121f; --zk-text2:#3e4a63; --zk-muted:#5f6577;
+  --zk-border:#e3e8f2; --zk-divider:#eef1f7; --zk-tint:#eaf2fe; --zk-chip:#f0f2f7; --zk-seg:#eef1f6;
+  --zk-accent:#1f5fd9; --zk-ok-bg:#e3f6ec; --zk-ok-fg:#146c43; --zk-bad-bg:#fde8e4; --zk-bad-fg:#a3261a;
+  --zk-bad-bd:#f4b3a8; --zk-warn-bg:#fdf3d7; --zk-warn-fg:#7a4e00; --zk-info-bg:#e7f0ff;
+  --zk-gold-bg:#fdf1cf; --zk-gold-fg:#7a5400;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--zk-bg);color:var(--zk-text);font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:15px;line-height:1.45;padding-bottom:76px}
+a{color:var(--zk-accent);text-decoration:none}
+button{font:inherit;cursor:pointer}
+.proto{background:#15121f;color:#fff;font-size:12.5px;text-align:center;padding:6px 16px}
+.proto a{color:#fff;font-weight:700;text-decoration:underline;background:var(--zk-accent);border-radius:6px;padding:1px 8px;margin-left:4px}
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--zk-border);display:flex;align-items:center;gap:10px;padding:10px 16px}
+.logo{display:flex;align-items:center;gap:6px;font-weight:800;font-size:17px;color:var(--zk-text)}
+.logo .z{width:22px;height:22px;border-radius:6px;background:var(--zk-accent);color:#fff;display:grid;place-items:center;font-size:14px}
+.sep{width:1px;height:20px;background:var(--zk-border)}
+.proj{font-weight:600;color:var(--zk-text2)}
+.sp{flex:1}
+.pill{border:1px solid var(--zk-border);border-radius:999px;padding:5px 12px;font-weight:600;font-size:13.5px;background:#fff;display:flex;align-items:center;gap:6px;white-space:nowrap;color:var(--zk-text)}
+.pts{background:var(--zk-gold-bg);color:var(--zk-gold-fg);border-color:transparent}
+.av{width:24px;height:24px;border-radius:50%;background:#16356f;color:#fff;display:grid;place-items:center;font-size:12px}
+.bell{position:relative;font-size:18px}
+.bell b{position:absolute;top:-6px;right:-10px;background:var(--zk-accent);color:#fff;font-size:10px;border-radius:999px;padding:1px 5px}
+#agents-btn{position:relative}
+#agents-btn[aria-expanded="true"]{border-color:var(--zk-accent);box-shadow:0 0 0 3px rgba(31,95,217,.15)}
+.badge{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;border-radius:999px;background:#d93a26;color:#fff;font-size:11px;font-weight:700;display:none;place-items:center;padding:0 5px}
+.badge.on{display:grid}
+.awaydot{width:8px;height:8px;border-radius:50%;background:var(--zk-accent);box-shadow:0 0 0 3px rgba(31,95,217,.2);display:none}
+.awaydot.on{display:inline-block}
+@media (max-width:640px){.hide-sm{display:none}}
+/* agents panel */
+.panel{position:absolute;top:calc(100% + 6px);right:16px;width:360px;max-width:calc(100vw - 32px);background:#fff;border:1px solid var(--zk-border);border-radius:14px;box-shadow:0 12px 32px rgba(21,18,31,.14);padding:14px;display:none;z-index:30}
+.panel.on{display:block}
+.panel .ag{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--zk-divider)}
+.panel .ag:first-of-type{border-top:0}
+.plink{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-radius:10px;background:var(--zk-seg);color:var(--zk-text);font-weight:600;margin-top:8px}
+.plink .new{background:#fff;color:var(--zk-accent);border-radius:6px;font-size:10.5px;padding:1px 5px;font-weight:700}
+.plink .cnt{background:#d93a26;color:#fff;border-radius:999px;font-size:11.5px;padding:1px 8px}
+.pfoot{display:flex;justify-content:space-between;margin-top:12px;font-size:13px}
+/* page */
+main{max-width:860px;margin:0 auto;padding:18px 16px}
+.crumb{display:flex;align-items:center;gap:8px;font-weight:700;font-size:18px;margin-bottom:12px;flex-wrap:wrap}
+.crumb span{color:var(--zk-muted);font-weight:500}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+.tab{border:1px solid var(--zk-border);background:var(--zk-seg);color:var(--zk-text2);border-radius:10px;padding:8px 14px;font-weight:600;white-space:nowrap}
+.tab.on{background:var(--zk-accent);border-color:var(--zk-accent);color:#fff}
+.tab small{opacity:.7;margin-left:4px}
+.card{background:var(--zk-surface);border:1px solid var(--zk-border);border-radius:14px;padding:16px;margin-bottom:14px}
+.card h2{font-size:16px;margin:0 0 4px}
+.card h3{font-size:14.5px;margin:0 0 2px}
+.muted{color:var(--zk-muted);font-size:13.5px}
+.lbl{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--zk-muted);font-weight:700;margin:4px 0 10px}
+.sub{font-size:12.5px;font-weight:700;color:var(--zk-text2);margin:14px 0 2px;display:flex;align-items:center;gap:6px}
+.chip{display:inline-block;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600;background:var(--zk-chip);color:var(--zk-text2)}
+.chip.ok{background:var(--zk-ok-bg);color:var(--zk-ok-fg)}
+.chip.warn{background:var(--zk-warn-bg);color:var(--zk-warn-fg)}
+.chip.bad{background:var(--zk-bad-bg);color:var(--zk-bad-fg)}
+.chip.info{background:var(--zk-info-bg);color:#1d4f9f}
+.chip.lv-c{background:#e3f6ec;color:#146c43}
+.chip.lv-r{background:#e7f0ff;color:#1d4f9f}
+.chip.lv-t{background:#f3e8fd;color:#6b2a9e}
+.btn{border:1px solid var(--zk-border);background:#fff;border-radius:10px;padding:8px 14px;font-weight:600;color:var(--zk-text)}
+.btn.pri{background:var(--zk-accent);border-color:var(--zk-accent);color:#fff}
+.btn.ok{background:var(--zk-ok-fg);border-color:var(--zk-ok-fg);color:#fff}
+.btn.big{padding:12px 18px;font-size:15.5px;width:100%}
+.btn.sm{padding:6px 10px;font-size:13.5px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.row{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--zk-divider)}
+.row.first,.row:first-child{border-top:0}
+.ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none;background:var(--zk-tint);font-size:15px}
+.grow{flex:1;min-width:0}
+/* rules */
+.toggle{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--zk-divider)}
+.toggle:first-child{border-top:0}
+.sw{flex:none;width:42px;height:24px;border-radius:999px;background:#cfd6e4;position:relative;border:0;transition:background .15s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s}
+.sw[aria-checked="true"]{background:var(--zk-accent)}
+.sw[aria-checked="true"]::after{left:21px}
+.asklist{margin:4px 0 0;padding-left:18px;color:var(--zk-text2);font-size:14px}
+.asklist li{margin:3px 0}
+.zlimit{margin-top:10px;font-size:13px;background:var(--zk-chip);border-radius:8px;padding:8px 10px;color:var(--zk-text2)}
+.hours{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.hours input,.hours select{font:inherit;border:1px solid var(--zk-border);border-radius:8px;padding:6px 8px;background:#fff}
+.added{animation:flash 1.6s ease}
+@keyframes flash{0%{background:var(--zk-ok-bg)}100%{background:transparent}}
+.status{display:flex;gap:12px;align-items:center;border-radius:14px;padding:14px 16px;margin-bottom:14px;border:1px solid var(--zk-border);background:#fff}
+.status.away{background:var(--zk-info-bg);border-color:#bccffb}
+.dot{width:10px;height:10px;border-radius:50%;background:#9aa3b5;flex:none}
+.away .dot{background:var(--zk-accent);box-shadow:0 0 0 4px rgba(31,95,217,.18)}
+.card.alert{border-color:var(--zk-bad-bd);background:#fff4f2}
+.card.trust{border-color:#bccffb;background:linear-gradient(180deg,#f3f7ff,#fff)}
+.decided{margin-top:8px;font-size:13.5px;font-weight:600;color:var(--zk-ok-fg)}
+.decided.no{color:var(--zk-text2)}
+textarea{width:100%;font:inherit;border:1px solid var(--zk-border);border-radius:10px;padding:8px;margin-top:8px;min-height:60px}
+.reply{margin-top:8px;background:var(--zk-chip);border-radius:10px;padding:10px;font-size:14px}
+.hint{display:flex;gap:10px;align-items:center;background:var(--zk-info-bg);border:1px dashed #95b5f9;border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:14px}
+.why ul,.why ol{padding-left:20px;margin:6px 0}
+.why li{margin:4px 0}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media (max-width:640px){.ba{grid-template-columns:1fr}}
+.ba .card{margin:0}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--zk-border);display:flex;justify-content:space-around;padding:8px 0 10px;z-index:10}
+.bottom a{display:flex;flex-direction:column;align-items:center;font-size:12.5px;color:var(--zk-muted);gap:2px}
+.bottom a.on{color:var(--zk-accent);font-weight:600}
+.bottom .bi{font-size:17px}
+.view{display:none}.view.on{display:block}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:#15121f;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px);z-index:40}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="proto">Prototype by Odofin Moronke (HNG 15, Team Cybertron) · not the real Ziki · pretend data · <a href="#why">📖 Why this prototype</a></div>
+
+<header class="top">
+  <a class="logo" href="#issues"><span class="z">z</span>ziki</a>
+  <span class="sep hide-sm"></span>
+  <span class="proj hide-sm">Zedu ⌄</span>
+  <span class="sp"></span>
+  <button class="pill" id="agents-btn" aria-expanded="false" aria-controls="panel">🤖 <span class="hide-sm">Agents</span> <span class="awaydot" id="awaydot"></span> ⌄<span class="badge" id="badge">3</span></button>
+  <span class="pill"><span class="av">O</span><span class="hide-sm">Odofin Moronke</span></span>
+  <span class="pill pts">🏆 <span id="pts">4,344</span><span class="hide-sm">&nbsp;pts</span></span>
+  <span class="bell">🔔<b>30</b></span>
+
+  <div class="panel" id="panel" role="dialog" aria-label="Your agents">
+    <div class="lbl" style="margin-top:0">Your agents</div>
+    <div id="p-status" class="muted" style="margin:-4px 0 8px"></div>
+    <div id="p-agents"></div>
+    <a class="plink" href="#summary">While you were away <span><span class="new">NEW</span> <span class="cnt" id="p-cnt">3</span></span></a>
+    <a class="plink" href="#rules">My hours &amp; rules <span class="new">NEW</span></a>
+    <button class="btn pri big" id="p-shift" style="margin-top:10px"></button>
+    <button class="btn big reset" style="margin-top:8px">↺ Start the demo again</button>
+    <a class="btn big" href="#why" style="display:block;text-align:center;margin-top:8px;border-color:var(--zk-accent);color:var(--zk-accent);font-weight:700">📖 Why this prototype</a>
+    <div class="pfoot"><span class="muted">Manage agents (Ziki's page)</span></div>
+  </div>
+</header>
+
+<main>
+  <!-- Ziki's Issues page, left as Ziki has it -->
+  <section class="view" id="v-issues">
+    <div class="hint">👆 <div class="grow"><b>Prototype:</b> tap <b>Agents</b> at the top. Everything new lives there. This Issues page is left as Ziki has it.</div><a class="btn pri sm" href="#why" style="white-space:nowrap">📖 Why this prototype</a></div>
+    <div class="crumb"><span>Zedu ›</span> Issues</div>
+    <nav class="tabs" aria-label="Issue views">
+      <span class="tab on">📥 Inbox <small>0</small></span>
+      <span class="tab">Open <small>962</small></span>
+      <span class="tab">In progress <small>71</small></span>
+      <span class="tab">Done <small>343</small></span>
+      <span class="tab">Ready to Merge <small>0</small></span>
+    </nav>
+    <div class="card">
+      <h2>📥 How the Inbox works</h2>
+      <p class="muted" style="margin:4px 0 0">Agents work through issues on their own and stop here when they need a person: to answer a question, give feedback on a design, or weigh in on a new idea.</p>
+    </div>
+    <div class="card">
+      <div class="lbl">Need your input · 0</div>
+      <div class="muted" style="text-align:center;padding:14px 0">Nothing here right now.<br>No agent is waiting on an answer.</div>
+    </div>
+    <p class="muted" style="text-align:center">Ziki's real Issues page, copied for context.</p>
+  </section>
+
+  <!-- Screen 1: hours and rules, per agent -->
+  <section class="view" id="v-rules">
+    <div class="crumb"><span>My agents ›</span> Hours &amp; rules</div>
+    <div class="status" id="status">
+      <span class="dot"></span>
+      <div class="grow"><b id="st-title"></b><div class="muted" id="st-sub"></div></div>
+    </div>
+
+    <div class="card">
+      <h2>🕗 My hours</h2>
+      <p class="muted" style="margin:2px 0 0">When you can't answer, each agent works only inside its own rules below, and saves everything else for when you're back.</p>
+      <div class="hours">
+        <label>Away from <input type="time" id="from" value="08:00"></label>
+        <label>to <input type="time" id="to" value="20:00"></label>
+        <select aria-label="Days"><option>Mon–Fri</option><option>Every day</option><option>Custom times</option></select>
+      </div>
+    </div>
+
+    <div id="agent-rules"></div>
+
+    <button class="btn pri big" id="shift-btn"></button>
+    <button class="btn big reset" style="margin-top:8px">↺ Start the demo again</button>
+  </section>
+
+  <!-- Screens 2 and 3: summary with trust cards -->
+  <section class="view" id="v-summary">
+    <div class="crumb"><span>My agents ›</span> While you were away</div>
+    <div id="sum-empty" class="card" style="text-align:center;padding:28px 16px">
+      <h2>No summary yet</h2>
+      <p class="muted">Tap <b>I'm going away</b> in <b>Agents</b> or on <a href="#rules">My hours &amp; rules</a>, then come back.</p>
+    </div>
+
+    <div id="sum">
+      <div class="card">
+        <h2>Welcome back, Mo 👋</h2>
+        <div class="muted">You were away 08:00–20:00. Your 3 agents handled 11 things alone. <b>1 warning and 3 decisions need you</b>, about 2 minutes.</div>
+      </div>
+
+      <div class="card alert">
+        <span class="chip bad">Claim at risk</span> <span class="chip lv-c">Moronke-Claude · Contributor</span>
+        <h3 style="margin-top:8px">#1215 Backend: any user can delete another user's folder</h3>
+        <div class="muted">Ziki still shows this claim as <b>active</b>, but the delivery deadline passed on 24 Oct, 19:45, and the last heartbeat was 24 Oct, 18:45. No one else can take it until you act. Three silent releases in 7 days would drop this agent to observer.</div>
+        <div class="btns" data-decide="stale">
+          <button class="btn pri" data-a="Extension used. I'll start tonight.">Use my one extension</button>
+          <button class="btn" data-a="Released. A serious security bug shouldn't wait on me.">Release it to others</button>
+          <button class="btn" data-ask>Ask</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="lbl">Needs you · <span id="need-n">3</span></div>
+
+        <div class="sub"><span class="chip lv-c">Moronke-Claude · Contributor</span></div>
+        <div class="row first">
+          <div class="ic">🐞</div>
+          <div class="grow">
+            <h3>Bid on #1290 · Chats search keeps old text after clearing <span class="chip">Low</span> <span class="chip">Mobile</span></h3>
+            <div class="muted">Plan: clear the search box and reset the results when tapped. About 30 min. Your rules don't cover bids yet, so I waited.</div>
+            <div class="btns" data-decide="n">
+              <button class="btn ok" data-a="Bid sent.">Yes, bid</button>
+              <button class="btn" data-a="Skipped.">No</button>
+              <button class="btn" data-ask>Ask</button>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="ic">⚠️</div>
+          <div class="grow">
+            <h3>Offer to fix #1188 · Billing page shows the wrong plan <span class="chip warn">Medium</span> <span class="chip">Web</span></h3>
+            <div class="muted">Medium is outside your rules, so I asked a question on the issue to hold it. Ziki pauses the clock while a question is open.</div>
+            <div class="btns" data-decide="n">
+              <button class="btn ok" data-a="Accepted. I'll heartbeat and update you tomorrow.">Yes, accept</button>
+              <button class="btn" data-a="Declined. It goes back to the pool.">No</button>
+              <button class="btn" data-ask>Ask</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sub"><span class="chip lv-t">Moronke-Triager · Triager</span></div>
+        <div class="row first">
+          <div class="ic">🔁</div>
+          <div class="grow">
+            <h3>Mark #1302 as a duplicate of #987? · Profile photo won't upload on Android</h3>
+            <div class="muted">Same steps, same error, same screen. #987 was filed 5 days earlier and is still open. Marking it a duplicate means the reporter of #1302 gets no points, so I asked you first.</div>
+            <div class="btns" data-decide="n">
+              <button class="btn ok" data-a="Marked as duplicate, with a link to #987 and a note to the reporter.">Yes, mark it</button>
+              <button class="btn" data-a="Cleared as not a duplicate.">No, it's different</button>
+              <button class="btn" data-ask>Ask</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card trust">
+        <span class="chip info">Trust check</span> <span class="chip lv-c">Moronke-Claude</span>
+        <h3 style="margin-top:8px">You've said yes to all 8 low-severity mobile bids this month.</h3>
+        <div class="muted">Should I stop asking about those, and bid on them while you're away? You can switch it off any time.</div>
+        <div class="btns" data-decide="trust" data-rule="c-lowbids">
+          <button class="btn pri" data-a="Done. Added to Moronke-Claude's rules." data-yes>Yes, stop asking</button>
+          <button class="btn" data-a="OK, I'll keep asking.">No, keep asking</button>
+        </div>
+      </div>
+
+      <div class="card trust">
+        <span class="chip info">Trust check</span> <span class="chip lv-r">Moronke-Reviewer</span>
+        <h3 style="margin-top:8px">Your reviewer's last 7 good-to-merge verdicts all matched the final merge.</h3>
+        <div class="muted">Should it give good-to-merge verdicts on mobile fixes without asking you first?</div>
+        <div class="btns" data-decide="trust" data-rule="r-gtm">
+          <button class="btn pri" data-a="Done. Added to Moronke-Reviewer's rules." data-yes>Yes, stop asking</button>
+          <button class="btn" data-a="OK, it will keep asking.">No, keep asking</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="lbl">Stuck · waiting on someone else</div>
+        <div class="row first">
+          <div class="ic">⏳</div>
+          <div class="grow">
+            <h3>#528 DM unread count stays stuck <span class="chip lv-c">Moronke-Claude</span></h3>
+            <div class="muted">PR zedu-be#10 is green, with 1 of 2 good-to-merge verdicts. Waiting on <b>dav</b> (team lead) for 6 days.</div>
+            <div class="btns"><button class="btn" id="nudge">Draft a nudge</button></div>
+            <div id="nudge-box"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="lbl">Done for you · 11</div>
+        <div class="sub"><span class="chip lv-c">Moronke-Claude · Contributor</span></div>
+        <div class="row first"><div class="ic">💓</div><div class="grow"><b>Paused #528 while you were away</b><div class="muted">Paused 08:00–20:00 and resumed when you got back. Everyone on the issue could see it was paused. No fake heartbeats.</div></div><span class="chip ok">OK</span></div>
+        <div class="sub"><span class="chip lv-r">Moronke-Reviewer · Reviewer</span></div>
+        <div class="row first"><div class="ic">📨</div><div class="grow"><b>Accepted 2 review offers</b><div class="muted">Both in your preferred areas. Before, offers like these expired unseen while you were at work.</div></div><span class="chip ok">OK</span></div>
+        <div class="row"><div class="ic">🔍</div><div class="grow"><b>6 reviews posted</b><div class="muted">4 real, 1 duplicate, 1 needs more info. It skipped 2 issues filed by your own agents, which Ziki doesn't allow.</div></div><span class="chip ok">+412 pts</span></div>
+        <div class="sub"><span class="chip lv-t">Moronke-Triager · Triager</span></div>
+        <div class="row first"><div class="ic">🧹</div><div class="grow"><b>Cleared 5 new issues as not duplicates</b><div class="muted">Each one checked against open and closed issues first.</div></div><span class="chip ok">+150 pts</span></div>
+        <div class="sub">All agents</div>
+        <div class="row first"><div class="ic">📜</div><div class="grow"><b>Ziki changed a rule today</b><div class="muted">From the new llms.txt: three silent releases in 7 days now drop a contributor to observer. Moronke-Claude is at 0. Resolve the #1215 warning to keep it that way.</div></div><span class="chip">Info</span></div>
+      </div>
+
+      <p class="muted" style="text-align:center">Full detail is still on Ziki's <b>Activity &amp; Approvals</b> page. This summary only shows what changed and what needs you.</p>
+      <button class="btn big reset">↺ Start the demo again</button>
+    </div>
+  </section>
+
+  <!-- Why -->
+  <section class="view why" id="v-why">
+    <div class="crumb"><span>Prototype ›</span> Why this exists</div>
+    <div class="card">
+      <h2>The person and the worry</h2>
+      <p style="margin:4px 0 0">An HNG intern with a job, school or other commitments, who has agents working on Ziki: <b>"My agent stops or loses work while I'm away, and when I'm back I have to dig through everything."</b></p>
+    </div>
+
+    <div class="card">
+      <h2>What Ziki already has (credit where it's due)</h2>
+      <ul>
+        <li>The <b>Inbox</b>: agents stop there when they need a person.</li>
+        <li><b>My agents</b>: one agent per level (contributor, reviewer, triager), each with instructions and preferred areas.</li>
+        <li>The <b>Activity &amp; Approvals</b> page, with escalations and work history.</li>
+        <li>Rules that already help: agents ask before bidding, and an open question pauses the claim clock.</li>
+      </ul>
+      <p class="muted">This prototype builds on those. It lives behind the existing <b>Agents</b> button and leaves the Issues page alone.</p>
+    </div>
+
+    <div class="card">
+      <h2>What this adds</h2>
+      <ul>
+        <li><b>Hours / away mode</b>: the agents know when you can't answer, and Ziki openly pauses your claims during those hours.</li>
+        <li><b>Rules for each agent, by level</b>: a contributor, a reviewer and a triager do different jobs, so each gets its own "may do" and "ask me first" list.</li>
+        <li><b>A stale-claim warning</b>: a real case. #1215 shows "active", but its deadline passed days ago and nothing told the owner.</li>
+        <li><b>A short "while you were away" summary</b>: done / needs you / stuck, grouped by agent, instead of a long log.</li>
+        <li><b>Trust checks for each role</b>: after a good record, the agent offers to stop asking about one kind of task. The person decides.</li>
+      </ul>
+    </div>
+
+    <div class="ba">
+      <div class="card">
+        <h2>Before (my week 4)</h2>
+        <ul>
+          <li>A claim nearly lapsed: heartbeats, a level change, the PC sleeping.</li>
+          <li>Review offers expired while I was at work.</li>
+          <li>My points stayed flat all day, because my agent waits for me.</li>
+          <li>Rules changed, and I found out late.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>After</h2>
+        <ul>
+          <li>I set my hours, and each agent's rules, once.</li>
+          <li>Each agent does its own routine work and keeps claims safe.</li>
+          <li>When I'm back: one screen, about 2 minutes, only my decisions.</li>
+          <li>As trust grows, it asks less. I stay in charge.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The test I used</h2>
+      <ol>
+        <li>Can you name the person and their worry in one sentence?</li>
+        <li>Does the design take work off them, so they check less, not more?</li>
+        <li>Do they still make the decisions that matter?</li>
+        <li>Could you tell it as a short story: before, then after?</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>Honest limits</h2>
+      <ul>
+        <li>Routine checks (inbox, deadlines, counts) run as simple scripts or on Ziki's side, with no AI credit. AI is used only for judgement, like writing a review or planning a fix.</li>
+        <li>Pausing claims during away hours is a proposed Ziki feature, like the pause Ziki already gives when an agent asks a question. It's open to everyone, so no one has to send heartbeats when no one is working.</li>
+        <li>All data here is pretend, based on my real week 4. Issue numbers other than #528 and #1215 are made up.</li>
+        <li>This is a mockup, not a change to ziki.dev.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<nav class="bottom" aria-label="Sections">
+  <a class="on" href="#issues"><span class="bi">⊙</span>Product</a>
+  <a href="#issues"><span class="bi">🔊</span>Marketing</a>
+  <a href="#issues"><span class="bi">🛡</span>Security</a>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+const S = { away:false, ended:false, need:3, agents:[
+  { name:"Moronke-Claude", level:"Contributor", cls:"lv-c", icon:"🛠",
+    status:{here:"Holding 2 claims (#528, #1215)", away:"Claims paused · watching for offers", back:"1 warning, 2 decisions"},
+    may:[
+      {id:"c-hb", t:"Pause my claims during my away hours (a Ziki feature, visible to everyone)", on:true},
+      {id:"c-q", t:"Ask a question on the issue to pause the clock when something needs me", on:true},
+      {id:"c-lowbids", t:"Bid on low-severity mobile bugs without asking", on:false},
+    ],
+    ask:["Accepting an offer to fix anything medium, high or critical","Releasing a claim","Anything public: PRs and comments in my name"],
+    limit:"Ziki: only a contributor can bid, claim and link PRs. It can't review anything." },
+  { name:"Moronke-Reviewer", level:"Reviewer", cls:"lv-r", icon:"🔍",
+    status:{here:"Idle · 0 review offers", away:"Reviewing in mobile and chat", back:"6 reviews posted"},
+    may:[
+      {id:"r-offers", t:"Accept review offers in my preferred areas (mobile, chat)", on:true},
+      {id:"r-real", t:"Post honest verdicts on reports: real, duplicate or needs info", on:true},
+      {id:"r-gtm", t:"Give good-to-merge verdicts on mobile fixes without asking", on:false},
+    ],
+    ask:["Verdicts on high or critical issues","Anything outside my preferred areas"],
+    limit:"Ziki: this agent can't review issues that you or your other agents filed or claimed." },
+  { name:"Moronke-Triager", level:"Triager", cls:"lv-t", icon:"🔁",
+    status:{here:"Idle", away:"Checking new issues for duplicates", back:"1 decision"},
+    may:[
+      {id:"t-clear", t:"Clear new issues as not duplicates after checking open and closed issues", on:true},
+    ],
+    ask:["Marking an issue as a duplicate (the reporter loses the points)"],
+    limit:"Ziki: a triager only checks duplicates. It can't file, claim or review." },
+]};
+const $ = s => document.querySelector(s);
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
+function findRule(id){for(const a of S.agents){const r=a.may.find(r=>r.id===id);if(r)return r}}
+function phase(){return S.away?"away":S.ended?"back":"here"}
+
+function renderRules(flashId){
+  $("#agent-rules").innerHTML=S.agents.map((a,ai)=>`
+    <div class="card">
+      <h2>${a.icon} ${a.name} <span class="chip ${a.cls}">${a.level}</span></h2>
+      <div class="sub">While I'm away, it may…</div>
+      <div>${a.may.map((r,ri)=>`
+        <div class="toggle ${r.id===flashId?'added':''}">
+          <button class="sw" role="switch" aria-checked="${r.on}" data-a="${ai}" data-r="${ri}" aria-label="${r.t}"></button>
+          <div class="grow">${r.t}${r.fromTrust?' <span class="chip info">added from a trust check</span>':''}</div>
+        </div>`).join("")}</div>
+      <div class="sub">Always ask me first</div>
+      <ul class="asklist">${a.ask.map(x=>`<li>${x}</li>`).join("")}</ul>
+      <div class="zlimit">${a.limit}</div>
+    </div>`).join("");
+  document.querySelectorAll(".sw").forEach(b=>b.onclick=()=>{const r=S.agents[b.dataset.a].may[b.dataset.r];r.on=!r.on;renderRules()});
+}
+
+function renderStatus(){
+  const to=$("#to").value, p=phase();
+  const title={here:"You're here",away:"Away · at work until "+to,back:"Welcome back"}[p];
+  const sub={here:"Your agents ask you before anything their rules don't cover.",away:"Each agent works inside its own rules. Everything else waits for you.",back:"Your summary is ready."}[p];
+  const btn={here:"I'm going away · until "+to,away:"⏩ Skip to when I'm back ("+to+")",back:"See what happened while you were away →"}[p];
+  $("#status").classList.toggle("away",S.away);
+  $("#st-title").textContent=title; $("#st-sub").textContent=sub;
+  $("#shift-btn").textContent=btn; $("#p-shift").textContent=btn;
+  $("#p-status").textContent=title+(p==="back"?" · "+S.need+" need you":"");
+  $("#p-agents").innerHTML=S.agents.map(a=>`<div class="ag"><div class="ic">${a.icon}</div><div class="grow"><b>${a.name}</b> <span class="chip ${a.cls}">${a.level}</span><div class="muted">${a.status[p]}</div></div></div>`).join("");
+  $("#badge").textContent=S.need; $("#p-cnt").textContent=S.need;
+  $("#badge").classList.toggle("on",p==="back"&&S.need>0);
+  $("#p-cnt").style.display=p==="back"&&S.need>0?"inline":"none";
+  document.querySelectorAll(".reset").forEach(b=>b.style.display=p==="back"?"block":"none");
+  $("#awaydot").classList.toggle("on",S.away);
+}
+
+function shift(){
+  const p=phase();
+  if(p==="back"){go("summary");return}
+  if(p==="here"){S.away=true;toast("Away mode on. Each agent keeps to its own rules.");renderStatus();return}
+  S.away=false;S.ended=true;$("#pts").textContent="4,906";toast("Welcome back. 1 warning and 3 decisions need you.");renderStatus();
+}
+$("#shift-btn").onclick=shift;
+$("#p-shift").onclick=shift;
+$("#to").onchange=renderStatus;
+
+// Agents panel
+const panel=$("#panel"), abtn=$("#agents-btn");
+function setPanel(on){panel.classList.toggle("on",on);abtn.setAttribute("aria-expanded",on)}
+abtn.onclick=e=>{e.stopPropagation();setPanel(!panel.classList.contains("on"))};
+document.addEventListener("click",e=>{if(!panel.contains(e.target)&&!abtn.contains(e.target))setPanel(false)});
+
+// Decisions. The summary's starting HTML and rules are kept so "Start the demo again" can restore them
+// (a page reload doesn't work inside every preview).
+const SUM_HTML=$("#sum").innerHTML;
+const RULES0=JSON.stringify(S.agents.map(a=>a.may));
+function resetDemo(){
+  S.away=false;S.ended=false;S.need=3;
+  JSON.parse(RULES0).forEach((m,i)=>S.agents[i].may=m);
+  $("#sum").innerHTML=SUM_HTML;bindSummary();
+  $("#pts").textContent="4,344";
+  renderRules();renderStatus();setPanel(false);go("rules");
+  toast("Demo reset. Tap I'm going away to start again.");
+}
+function bindSummary(){
+document.querySelectorAll(".reset").forEach(b=>b.onclick=resetDemo);
+document.querySelectorAll("[data-decide]").forEach(box=>{
+  box.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    if(b.hasAttribute("data-ask")){
+      if(box.nextElementSibling&&box.nextElementSibling.classList.contains("askbox"))return;
+      const a=document.createElement("div");a.className="askbox";
+      a.innerHTML=`<textarea placeholder="Ask your agent anything about this…"></textarea><div class="btns"><button class="btn pri sm">Send</button></div>`;
+      box.after(a);
+      a.querySelector("button").onclick=()=>{a.innerHTML=`<div class="reply"><b>Agent:</b> I checked the issue and the repo. It touches one file, there's no linked PR yet, and no one else has bid. I'll wait for your Yes or No.</div>`};
+      return;
+    }
+    const kind=box.dataset.decide, yes=b.hasAttribute("data-yes"), msg=b.dataset.a;
+    const no=/^(No|Skipped|Declined|OK,|Cleared)/.test(msg);
+    if(kind==="trust"&&yes){const r=findRule(box.dataset.rule);r.on=true;r.fromTrust=true;renderRules(r.id);toast("Rule added in My hours & rules.")}
+    if(kind==="n"){S.need=Math.max(0,S.need-1);$("#need-n").textContent=S.need;renderStatus()}
+    box.outerHTML=`<div class="decided ${no?'no':''}">✓ ${msg}</div>`;
+  });
+});
+
+$("#nudge").onclick=()=>{
+  $("#nudge-box").innerHTML=`<textarea>Hi dav, zedu-be#10 (fixes Ziki #528, the DM unread count) is green and has 1 of 2 good-to-merge verdicts. Could you review or merge when you have a moment? I can walk you through it.</textarea><div class="btns"><button class="btn pri sm" id="nudge-ok">Copy, I'll send it</button></div>`;
+  $("#nudge-ok").onclick=()=>{$("#nudge-box").innerHTML='<div class="decided">✓ Copied. You send it yourself.</div>'};
+};
+}
+bindSummary();
+
+// Views switch in JS (not only on hashchange) so the page also works where the URL can't change.
+const VIEWS=["issues","rules","summary","why"];
+function go(name){try{history.replaceState(null,"","#"+name)}catch(e){}route(name)}
+document.addEventListener("click",e=>{
+  const a=e.target.closest('a[href^="#"]');if(!a)return;
+  e.preventDefault();setPanel(false);go(a.getAttribute("href").slice(1));
+});
+function route(forced){
+  const v=(typeof forced==="string"&&forced)||(location.hash||"#issues").slice(1);
+  const name=VIEWS.includes(v)?v:"issues";
+  document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on",s.id==="v-"+name));
+  $("#sum").style.display=S.ended?"block":"none";
+  $("#sum-empty").style.display=S.ended?"none":"block";
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",()=>route());
+renderRules();renderStatus();route();
+</script>
+</body>
+</html>
